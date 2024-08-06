@@ -6,7 +6,6 @@ import {
   IsNumber,
   IsString,
   IsUrl,
-  IsUUID,
   MaxLength,
   Min,
   ValidateNested,
@@ -30,7 +29,7 @@ export class CaracteristicaProdutoDTO {
 export class ImagemProdutoDTO {
   id: string;
 
-  @IsUrl(undefined, { message: 'URL para imagem inválida' })
+  @IsUrl({ message: 'URL para imagem inválida' })
   url: string;
 
   @IsString()
@@ -41,9 +40,6 @@ export class ImagemProdutoDTO {
 }
 
 export class CriaProdutoDTO {
-  @IsUUID(undefined, { message: 'ID de usuário inválido' })
-  usuarioId: string;
-
   @IsString()
   @IsNotEmpty({ message: 'Nome do produto não pode ser vazio' })
   nome: string;
@@ -54,7 +50,7 @@ export class CriaProdutoDTO {
 
   @IsNumber()
   @Min(0, { message: 'Quantidade mínima inválida' })
-  quantidade: number;
+  quantidadeDisponivel: number;
 
   @IsString()
   @IsNotEmpty({ message: 'Descrição do produto não pode ser vazia ' })
@@ -65,7 +61,7 @@ export class CriaProdutoDTO {
 
   @ValidateNested()
   @IsArray()
-  @ArrayMinSize(3)
+  @ArrayMinSize(1)
   @Type(() => CaracteristicaProdutoDTO)
   caracteristicas: CaracteristicaProdutoDTO[];
 

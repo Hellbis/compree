@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsuarioController } from './usuario.controller';
 import { EmailEhUnicoValidator } from './validacoes/email-eh-unico.validator';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsuarioEntity } from './usuario.entity';
 import { UsuarioService } from './usuario.service';
+import { UsuarioEntity } from './usuario.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UsuarioEntity])],

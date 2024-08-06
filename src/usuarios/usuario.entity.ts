@@ -1,24 +1,26 @@
+import { PedidoEntity } from '../pedido/pedido.entity';
 import {
+  Entity,
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
+  PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 
-@Entity('usuarios')
+@Entity({ name: 'usuarios' })
 export class UsuarioEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 100, nullable: false })
+  @Column({ name: 'nome', length: 100, nullable: false })
   nome: string;
 
-  @Column({ length: 70, nullable: false })
+  @Column({ name: 'email', length: 70, nullable: false })
   email: string;
 
-  @Column({ length: 255, nullable: false })
+  @Column({ name: 'senha', length: 255, nullable: false })
   senha: string;
 
   @CreateDateColumn({ name: 'created_at' })
@@ -29,4 +31,7 @@ export class UsuarioEntity {
 
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: string;
+
+  @OneToMany(() => PedidoEntity, (pedido) => pedido.usuario)
+  pedidos: PedidoEntity[];
 }

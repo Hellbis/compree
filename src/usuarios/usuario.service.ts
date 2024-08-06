@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ListaUsuarioDTO } from './dtos/ListaUsuario.dto';
 import { UsuarioEntity } from './usuario.entity';
 import { Repository } from 'typeorm';
-import { ListaUsuarioDTO } from './dtos/ListaUsuario.dto';
 import { AtualizaUsuarioDTO } from './dtos/AtualizaUsuario.dto';
+import { CriaUsuarioDTO } from './dtos/CriaUsuario.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -12,23 +13,36 @@ export class UsuarioService {
     private readonly usuarioRepository: Repository<UsuarioEntity>,
   ) {}
 
-  async criar(usuarioEntity: UsuarioEntity) {
-    await this.usuarioRepository.save(usuarioEntity);
+  async criaUsuario(dadosDoUsuario: CriaUsuarioDTO) {
+    const usuarioEntity = new UsuarioEntity();
+
+    usuarioEntity.email = dadosDoUsuario.email;
+    usuarioEntity.senha = dadosDoUsuario.senha;
+    usuarioEntity.nome = dadosDoUsuario.nome;
+
+    return this.usuarioRepository.save(usuarioEntity);
   }
 
-  async listar() {
-    const usuarios = await this.usuarioRepository.find();
-
-    return usuarios.map(
+  async listUsuarios() {
+    const usuariosSalvos = await this.usuarioRepository.find();
+    const usuariosLista = usuariosSalvos.map(
       (usuario) => new ListaUsuarioDTO(usuario.id, usuario.nome),
     );
+    return usuariosLista;
   }
 
-  async atualizar(id: string, novoUsuario: AtualizaUsuarioDTO) {
-    return await this.usuarioRepository.update(id, novoUsuario);
+  async buscaPorEmail(email: string) {
+    const checkEmail = await this.usuarioRepository.findOne({
+      where: { email },
+    });
+    return checkEmail;
   }
 
-  async deletar(id: string) {
-    return await this.usuarioRepository.delete(id);
+  async atualizaUsuario(id: string, novosDados: AtualizaUsuarioDTO) {
+    await this.usuarioRepository.update(id, novosDados);
+  }
+
+  async deletaUsuario(id: string) {
+    await this.usuarioRepository.delete(id);
   }
 }

@@ -1,53 +1,34 @@
 import {
+  Entity,
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
+  PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
-import { ProdutoCaracteristica } from './produto-caracteristica.entity';
-import { ProdutoImagem } from './produto-imagem.entity';
+import { ProdutoImagemEntity } from './produto-imagem.entity';
+import { ProdutoCaracteristicaEntity } from './produto-caracteristica.entity';
 
-@Entity('produtos')
+@Entity({ name: 'produtos' })
 export class ProdutoEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'usuario_id', length: 255, nullable: false })
-  usuarioId: string;
-
-  @Column({ length: 100, nullable: false })
+  @Column({ name: 'nome', length: 100, nullable: false })
   nome: string;
 
-  @Column({ nullable: false })
+  @Column({ name: 'valor', nullable: false })
   valor: number;
 
-  @Column({ nullable: false })
-  quantidade: number;
+  @Column({ name: 'quantidade_disponivel', nullable: false })
+  quantidadeDisponivel: number;
 
-  @Column({ length: 255, nullable: false })
+  @Column({ name: 'descricao', length: 255, nullable: false })
   descricao: string;
 
-  @Column({ length: 100, nullable: false })
+  @Column({ name: 'categoria', length: 100, nullable: false })
   categoria: string;
-
-  @OneToMany(
-    () => ProdutoCaracteristica,
-    (produtoCaracteristica) => produtoCaracteristica.produto,
-    {
-      cascade: true,
-      eager: true,
-    },
-  )
-  caracteristicas: ProdutoCaracteristica[];
-
-  @OneToMany(() => ProdutoImagem, (produtoImagem) => produtoImagem.produto, {
-    cascade: true,
-    eager: true,
-  })
-  imagens: ProdutoImagem[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: string;
@@ -58,6 +39,17 @@ export class ProdutoEntity {
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: string;
 
-  // caracteristicas: CaracteristicaProduto[];
-  // imagens: ImagemProduto[];
+  @OneToMany(
+    () => ProdutoImagemEntity,
+    (produtoImagemEntity) => produtoImagemEntity.produto,
+    { cascade: true, eager: true },
+  )
+  imagens: ProdutoImagemEntity[];
+
+  @OneToMany(
+    () => ProdutoCaracteristicaEntity,
+    (produtoCaracteristicaEntity) => produtoCaracteristicaEntity.produto,
+    { cascade: true, eager: true },
+  )
+  caracteristicas: ProdutoCaracteristicaEntity[];
 }

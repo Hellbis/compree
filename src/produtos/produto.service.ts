@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ProdutoEntity } from './produto.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ListaProdutoDTO } from './dtos/ListaProduto.dto';
-import { AtualizaProdutoDTO } from './dtos/atualizaProduto.dto';
+import { ProdutoEntity } from './produto.entity';
+import { Repository } from 'typeorm';
+import { AtualizaProdutoDTO } from './dtos/AtualizaProduto.dto';
+import { CriaProdutoDTO } from './dtos/CriaProduto.dto';
 
 @Injectable()
 export class ProdutoService {
@@ -12,30 +13,46 @@ export class ProdutoService {
     private readonly produtoRepository: Repository<ProdutoEntity>,
   ) {}
 
-  async criar(produtoEntity: ProdutoEntity) {
-    await this.produtoRepository.save(produtoEntity);
+  async criaProduto(dadosProduto: CriaProdutoDTO) {
+    const produtoEntity = new ProdutoEntity();
+
+    produtoEntity.nome = dadosProduto.nome;
+    produtoEntity.valor = dadosProduto.valor;
+    produtoEntity.quantidadeDisponivel = dadosProduto.quantidadeDisponivel;
+    produtoEntity.descricao = dadosProduto.descricao;
+    produtoEntity.categoria = dadosProduto.categoria;
+    produtoEntity.caracteristicas = dadosProduto.caracteristicas;
+    produtoEntity.imagens = dadosProduto.imagens;
+
+    return this.produtoRepository.save(produtoEntity);
   }
 
-  async listar() {
-    const produtos = await this.produtoRepository.find();
-
-    return produtos.map((produto) => {
-      const listaProduto = new ListaProdutoDTO();
-      listaProduto.id = produto.id;
-      listaProduto.nome = produto.nome;
-      listaProduto.valor = produto.valor;
-      listaProduto.quantidade = produto.quantidade;
-      listaProduto.descricao = produto.descricao;
-      listaProduto.categoria = produto.categoria;
-      return listaProduto;
+  async listProdutos() {
+    const produtosSalvos = await this.produtoRepository.find({
+      relations: {
+        imagens: true,
+        caracteristicas: true,
+      },
     });
+    const produtosLista = produtosSalvos.map(
+      (produto) =>
+        new ListaProdutoDTO(
+          produto.id,
+          produto.nome,
+          produto.caracteristicas,
+          produto.imagens,
+        ),
+    );
+    return produtosLista;
   }
 
-  async atualizar(id: string, novoProduto: AtualizaProdutoDTO) {
-    return await this.produtoRepository.update(id, novoProduto);
+  async atualizaProduto(id: string, novosDados: AtualizaProdutoDTO) {
+    const entityName = await this.produtoRepository.findOneBy({ id });
+    Object.assign(entityName, novosDados);
+    return this.produtoRepository.save(entityName);
   }
 
-  async deletar(id: string) {
-    return await this.produtoRepository.delete(id);
+  async deletaProduto(id: string) {
+    await this.produtoRepository.delete(id);
   }
 }
