@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   registerDecorator,
   ValidationOptions,
@@ -13,8 +13,14 @@ export class UniqueEmailValidator implements ValidatorConstraintInterface {
   constructor(private usersService: UsersService) {}
 
   async validate(value: any): Promise<boolean> {
-    const emailExist = await this.usersService.findByEmail(value);
-    return !emailExist;
+    try {
+      const emailExist = await this.usersService.findByEmail(value);
+      return !emailExist;
+    } catch (error) {
+      if (error instanceof NotFoundException) return true;
+
+      throw error;
+    }
   }
 }
 

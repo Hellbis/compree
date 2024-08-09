@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersController } from './users.controller';
-import { UniqueEmailValidator } from './validacoes/unique-email.validator';
+import { UniqueEmailValidator } from './validators/unique-email.validator';
 import { UsersService } from './users.service';
 import { UserEntity } from './user.entity';
 

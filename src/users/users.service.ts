@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ListUserDTO } from './dtos/list-users.dto';
 import { UserEntity } from './user.entity';
@@ -16,9 +16,7 @@ export class UsersService {
   async create(userData: CreateUserDTO) {
     const userEntity = new UserEntity();
 
-    userEntity.email = userData.email;
-    userEntity.password = userData.password;
-    userEntity.name = userData.name;
+    Object.assign(userEntity, userData);
 
     return this.usersRepository.save(userEntity);
   }
@@ -33,14 +31,25 @@ export class UsersService {
     const checkEmail = await this.usersRepository.findOne({
       where: { email },
     });
+
+    if (checkEmail === null) throw new NotFoundException('Email not found');
+
     return checkEmail;
   }
 
-  async update(id: string, userData: UpdateUserDTO) {
-    await this.usersRepository.update(id, userData);
+  async update(id: string, userUpdateData: UpdateUserDTO) {
+    const user = await this.usersRepository.findOneBy({ id });
+
+    if (user === null) throw new NotFoundException('User not found');
+
+    Object.assign(user, userUpdateData);
+
+    return await this.usersRepository.save(user);
   }
 
   async delete(id: string) {
-    await this.usersRepository.delete(id);
+    const result = await this.usersRepository.delete(id);
+
+    if (!result.affected) throw new NotFoundException('User not found');
   }
 }
