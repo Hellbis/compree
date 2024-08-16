@@ -40,6 +40,20 @@ export class ProductsService {
     return productsList;
   }
 
+  async findById(id: string) {
+    const product = await this.productsRepository.findOneBy({ id });
+
+    if (product === null) throw new NotFoundException('Product not found');
+
+    const productList = new ListProductDTO(
+      product.id,
+      product.name,
+      product.properties,
+      product.images,
+    );
+    return productList;
+  }
+
   async update(id: string, productData: UpdateProductDTO) {
     const productEntity = await this.productsRepository.findOneBy({ id });
 

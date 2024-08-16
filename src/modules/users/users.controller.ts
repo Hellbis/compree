@@ -6,24 +6,31 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UpdateUserDTO } from './dtos/update-user.dto';
 import { CreateUserDTO } from './dtos/create-user.dto';
-import { UserEntity } from './user.entity';
 import { UsersService } from './users.service';
+import { HashPasswordPipe } from '../../resources/pipes/hash-password.pipe';
+import { ListUserDTO } from './dtos/list-users.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async criaUsuario(@Body() userData: CreateUserDTO) {
-    const usuarioEntity = new UserEntity();
-    usuarioEntity.email = userData.email;
-    usuarioEntity.password = userData.password;
-    usuarioEntity.name = userData.name;
+  async criaUsuario(
+    @Body() userData: CreateUserDTO,
+    @Body('password', HashPasswordPipe) hashPassword: string,
+  ) {
+    const userCreated = await this.usersService.create({
+      ...userData,
+      password: hashPassword,
+    });
 
-    return await this.usersService.create(usuarioEntity);
+    return new ListUserDTO(userCreated.id, userCreated.name);
   }
 
   @Get()
