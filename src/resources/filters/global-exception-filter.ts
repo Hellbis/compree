@@ -1,6 +1,7 @@
 import {
   ArgumentsHost,
   Catch,
+  ConsoleLogger,
   ExceptionFilter,
   HttpException,
   HttpStatus,
@@ -9,14 +10,23 @@ import { HttpAdapterHost } from '@nestjs/core';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  constructor(private adapterHost: HttpAdapterHost) {}
+  constructor(
+    private adapterHost: HttpAdapterHost,
+    private logger: ConsoleLogger,
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
+    this.logger.error(exception);
+
     const { httpAdapter } = this.adapterHost;
 
     const context = host.switchToHttp();
     const response = context.getResponse();
     const request = context.getRequest();
+
+    if ('user' in request) {
+      this.logger.error(`User ${request.user.sub} tried to access the route`);
+    }
 
     const { status, body } =
       exception instanceof HttpException
