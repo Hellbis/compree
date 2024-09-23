@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -87,10 +88,17 @@ export class OrdersService {
     return pedidoCriado;
   }
 
-  async update(id: string, dto: UpdateOrderDto) {
-    const order = await this.ordersRepository.findOneBy({ id });
+  async update(id: string, dto: UpdateOrderDto, userId: string) {
+    const order = await this.ordersRepository.findOne({
+      where: { id },
+      relations: { user: true },
+    });
 
     if (order === null) throw new NotFoundException('Order not found');
+
+    if (order.user.id !== userId) {
+      throw new ForbiddenException('Not permission for this action');
+    }
 
     Object.assign(order, dto);
 
